@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                max-width:650px;
+                margin:40px auto;
+                padding:0 10px;
+                font:18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+                color:#444
+            }
+
+            h1,h2,h3 {
+                line-height:1.2
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Yggdrasil Optimal Peers Selector</h1>
+        <p>Hello, this is a tool to find optimal Optimal Peers in <a href="https://yggdrasil-network.github.io">Yggdrasil Network</a> based on ping</p>
+        <p>
+            <button class="pure-button" onclick="test()">1. Fetch List of Public Peers</button>
+        </p>
+        <p>
+            <button class="pure-button" onclick="test()">2. Test ping to each Peer</button>
+        </p>
+        <p>
+            <button class="pure-button" onclick="test()">3. Sort results</button>
+        </p>
+        <p>
+            <button class="pure-button" onclick="test()">4. Share results</button>
+        </p>
+
+        <h2>Results</h2>
+        <p>
+            <div id="results">
+
+            </div>
+        </p>
+
+        <script>
+            async function test() {
+                const url = prompt('Enter URL to Ping:');
+                let ts = 'timeout';
+                try {
+                    const tsMs = await ping(url);
+                    ts = `${tsMs}ms`;
+                } catch {
+                    console.log('Shit happens')
+                }
+
+                let resTag = document.getElementById("results");
+                resTag.innerText += `Ping for "${url}" is: ${ts}\n`;
+            }
+
+            /**
+             * Creates and loads an image element by url.
+             * @param  {String} url
+             * @return {Promise} promise that resolves to an image element or
+             *                   fails to an Error.
+             */
+            function request_image(url) {
+                return new Promise(function(resolve, reject) {
+                    var img = new Image();
+                    img.onload = function() { resolve(img); };
+                    img.onerror = function() { reject(url); };
+                    img.src = 'http://' + url + '?random-no-cache=' + Math.floor((1 + Math.random()) * 0x10000).toString(16);
+                });
+            }
+
+            /**
+             * Pings a url.
+             * @param  {String} url
+             * @param  {Number} multiplier - optional, factor to adjust the ping by.  0.3 works well for HTTP servers.
+             * @return {Promise} promise that resolves to a ping (ms, float).
+             */
+            function ping(url, multiplier) {
+                return new Promise(function(resolve, reject) {
+                    var start = (new Date()).getTime();
+                    var response = function() {
+                        var delta = ((new Date()).getTime() - start);
+                        delta *= (multiplier || 1);
+                        resolve(delta);
+                    };
+                    request_image(url).then(response).catch(response);
+
+                    // Set a timeout for max-pings, 5s.
+                    setTimeout(function() { reject(Error('Timeout')); }, 5000);
+                });
+            }
+
+        </script>
+    </body>
+</html>
