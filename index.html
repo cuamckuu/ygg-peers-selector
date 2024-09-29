@@ -14,35 +14,88 @@
             h1,h2,h3 {
                 line-height:1.2
             }
+
+            .res-table {
+                width: 100%;
+            }
+            pre {
+                cursor: pointer;
+            }
         </style>
     </head>
 
-    <body>
+    <body id="app">
         <h1>Yggdrasil Optimal Peers Selector</h1>
-        <p>Hello, this is a tool to find optimal Optimal Peers in <a href="https://yggdrasil-network.github.io">Yggdrasil Network</a> based on ping</p>
+        <p>This is a tool to find optimal Optimal Peers in <a href="https://yggdrasil-network.github.io">Yggdrasil Network</a> based on ping</p>
+
+        <h2>How to use?</h2>
         <p>
-            <button class="pure-button" onclick="test()">1. Fetch List of Public Peers</button>
+            1. Click on "Start Test" button below
+            <br>
+            2. Script fetches list of public peers from <a href="https://github.com/yggdrasil-network/public-peers">this repo</a>
+            <br>
+            3. It tests ping to this peers by using a <a href="https://stackoverflow.com/questions/4282151/is-it-possible-to-ping-a-server-from-javascript">trick</a>
+            <br>
+            4. Fastest peers responce first, so results shown in sorted order
+            <br>
+            5. Click on url to copy it into clipboard and add 2-3 top peers into your Yggdrasil config
+            <br>
+            6. ???
+            <br>
+            7. PROFIT
         </p>
-        <p>
-            <button class="pure-button" onclick="test()">2. Test ping to each Peer</button>
-        </p>
-        <p>
-            <button class="pure-button" onclick="test()">3. Sort results</button>
-        </p>
-        <p>
-            <button class="pure-button" onclick="test()">4. Share results</button>
-        </p>
+        <button class="pure-button" onclick="get_public_peers()">Start Test</button>
 
         <h2>Results</h2>
         <p>
-            <div id="results">
-
-            </div>
+            <table class="pure-table pure-table-bordered res-table">
+                <thead>
+                    <th width="80%">Host</th>
+                    <th>Ping</th>
+                </thead>
+                <tbody id="results">
+                </tbody>
+            </table>
         </p>
 
         <script>
-            async function test() {
-                const url = prompt('Enter URL to Ping:');
+            // XXX: Code below is very messy and bad, it's just a kinda working PoC written at night
+            function* matchAll(str, regexp) {
+                const flags = regexp.global ? regexp.flags : regexp.flags + "g";
+                const re = new RegExp(regexp, flags);
+                let match;
+                while (match = re.exec(str)) {
+                    yield match;
+                }
+            }
+            async function get_public_peers() {
+                document.getElementById('results').innerHTML = '';
+                let html = await get_html('https://raw.githubusercontent.com/yggdrasil-network/public-peers/refs/heads/master/europe/russia.md');
+
+                let matches = matchAll(html, /`((tcp|tls|ws):\/\/(.*):\d+.*)`/g);
+                let hosts = new Set();
+                for (const match of matches) {
+                    test(match[3], match[0]);
+                }
+
+                for (const host of hosts) {
+                }
+            }
+
+            function copy_func(el) {
+                var copyText = el.innerText;
+
+                const textArea = document.createElement('textarea');
+                textArea.textContent = copyText;
+                document.body.append(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                alert(`Copied: "${copyText}"`);
+            }
+
+
+            async function test(url, full_url) {
+                //const url = prompt('Enter URL to Ping:');
                 let ts = 'timeout';
                 try {
                     const tsMs = await ping(url);
@@ -51,8 +104,20 @@
                     console.log('Shit happens')
                 }
 
-                let resTag = document.getElementById("results");
-                resTag.innerText += `Ping for "${url}" is: ${ts}\n`;
+                let tbodyTag = document.getElementById("results");
+
+
+                let hostTag = document.createElement('td');
+                hostTag.innerHTML = `<pre onclick="copy_func(this)">${full_url.slice(1, -1)}</pre>`;
+
+                let pingTag = document.createElement('td');
+                pingTag.innerText = ts;
+
+                let tableRowTag = document.createElement('tr');
+                tableRowTag.appendChild(hostTag)
+                tableRowTag.appendChild(pingTag)
+
+                tbodyTag.appendChild(tableRowTag)
             }
 
             /**
@@ -91,6 +156,11 @@
                 });
             }
 
+            async function get_html(url) {
+                var response = await fetch(url);
+                var template = await response.text();
+                return template
+            }
         </script>
     </body>
 </html>
