@@ -7,7 +7,8 @@ Instead of manually checking the [list of public peers](https://publicpeers.neil
 Less hassle, more speed!
 
 [Try a demo](https://cuamckuu.github.io/ygg-peers-selector.html)
-![Screenshoot](./demo.png)
+
+<img src='./demo.png' width='50%'>
 
 # Why?
 
