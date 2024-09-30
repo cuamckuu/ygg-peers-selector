@@ -6,6 +6,9 @@ Instead of manually checking the [list of public peers](https://publicpeers.neil
 
 Less hassle, more speed!
 
+[Try a demo](https://cuamckuu.github.io/ygg-peers-selector.html)
+![Screenshoot](./demo.png)
+
 # Why?
 
 Here is kinda official explanation from Yggdrasil on peers selection:
@@ -27,6 +30,8 @@ Here is kinda official explanation from Yggdrasil on peers selection:
 - [X] Тable with results
 - [X] One click peers copy
 - [X] Sort table
+- [ ] Hide textarea after copy
+- [ ] Add title in head tag
 - [ ] Use better url pattern `(?:quic|ws|tcp|tls|ws):\/\/(.+):\d+(?:\?.+)?`
 - [ ] Show progress bar of test
 - [ ] Better mobile view for wide table
